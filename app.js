@@ -1,24 +1,47 @@
 // setup.. this is similar to when we use our default tags in html
 const express = require('express')
-//we have to use cors in order to host a front end and backend on the same device
-var cors = require('cors')
-// activate or tell this app variable to be an express server
-const bodyParser = require('body-parser')
 const Song = require("./models/songs")
+var cors = require('cors')
+const bodyParser = require('body-parser')
+const jwt = require('jwt-simple')
+const User = require("./models/user")
+
 const app = express()
 app.use(cors())
 
 app.use(express.json())
+
 const router = express.Router()
+const secret = "supersecret"
+
+//creating a new user
+router.post("/user", async(req,res) => {
+  if(!req.body.username || !req.body.password){
+    res.stqatus(400).json({error: "Mssing username or password"})
+  }
+
+  const newUser = new User({
+    username: req.body.username,
+    password: req.body.password,
+    status: req.body.status
+  })
+
+  try {
+    await newUser.save()
+    res.status(201) //created
+  } catch(err) {
+    res.status(400).send(err)
+  }
+})
 
 // Get list of all songs in the database
 router.get("/songs", async(req,res) => {
   try{
     const songs = await Song.find({})
     res.send(songs)
-    console.log(songs)
+    res.status(201).send(songs)
   } catch (err) {
-    console.log(err)
+    res.status(400).send(err)
   }
 })
 
@@ -29,7 +52,6 @@ router.get("/songs/:id", async(req,res) => {
     res.json(song)
   } catch (err) {
     res.status(400).send(err)
-
   }
 })
 
