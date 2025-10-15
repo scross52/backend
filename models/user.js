@@ -2,7 +2,7 @@ const db = require("../db")
 
 const User = db.model("User", {
   //hidden property _id
-  username: {type:String, required:true},
+  username: {type:String, required:true, unique:true},
   password: {type:String, required:true},
   status: String
 })

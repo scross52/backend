@@ -34,6 +34,61 @@ router.post("/user", async(req,res) => {
   }
 })
 
+//authenticate or login
+//post request - reason why is because when you login you are creating what we call a new 'session'
+router.post('/auth', async(req,res) => {
+  if(!req.body.username || !req.body.password){
+    res.stqatus(400).json({error: "Mssing username or password"})
+    return
+  }
+  //try to find the username in the database, then see if it matches with a username and password
+  //await finding a user
+  const user = await User.findOne({username : req.body.username})
+
+  //connection or server error
+  if(!user) {
+    res.status(400).send({error: "Bad Username"})
+  } else {
+    //check to see if the users password matches the requests password
+    if (user.password != req.body.password) {
+      res.status(401).json({error: "Bad Password"})
+    } else {
+      // succesfull login
+      //create a token that is encoded with the jwt library, and send back the username.. this will be important
+      //we also will send back as part of the token that you are currently authorized
+      //we could do this with a boolean or a number value i.s if auth = 0 your are not authoraized, if auth = 1 you are authorized
+      username2 = user.username
+      const token = jwt.encode({username: user.username}, secret)
+      const auth = 1
+
+      //respond with the token
+      res.json({
+        username2,
+        token:token,
+        auth:auth
+      })
+    }
+  }
+})
+
+router.get("/status", async(req,res) => {
+  if(!req.headers["x-auth"]) {
+    return res.status(401).json({error: "Missing X-Auth"})
+  }
+
+  //if x-auth contains the token (it should)
+  const token = req.headers["x-auth"]
+  try{
+    const decoded = jwt.decode(token,secret)
+
+    //send back all username and status fields to the user or front end
+    let users = User.find({}, "username status")
+    res.json(users)
+  } catch (ex) {
+    res.status(401).json({error: "invalid jwt"})
+  }
+})
+
 // Get list of all songs in the database
 router.get("/songs", async(req,res) => {
   try{
