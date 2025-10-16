@@ -142,7 +142,7 @@ router.put("/songs/:id", async(req,res) => {
 router.delete("/songs/:id", async(req,res) => {
   //method or function in mongoose/mongo to delete a single instance of a song or object
   try{
-    Song.updateOne({_id: req.params.id})
+    Song.deleteOne({_id: req.params.id})
     res.sendStatus(204)
   }catch (err) {
     res.status(400).send(err)
