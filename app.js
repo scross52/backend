@@ -100,7 +100,6 @@ router.get("/status", async(req,res) => {
 router.get("/songs", async(req,res) => {
   try{
     const songs = await Song.find({})
-    res.send(songs)
     res.status(201).send(songs)
   } catch (err) {
     res.status(400).send(err)
