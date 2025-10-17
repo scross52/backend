@@ -20,6 +20,13 @@ router.post("/user", async(req,res) => {
     res.stqatus(400).json({error: "Mssing username or password"})
   }
 
+  //attempt to find username in database
+  const existingUser = await User.findOne({ username: req.body.username })
+  //if username exists in database, return an error
+  if (existingUser) {
+    return res.status(400).json({error: "Username already exists"})
+  }
+
   const newUser = new User({
     username: req.body.username,
     password: req.body.password,
